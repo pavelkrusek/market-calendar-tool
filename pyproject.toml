@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "market-calendar-tool"
+version = "0.1.0"
+description = ""
+authors = ["Pavel Krusek <pavel@krusek.dk>"]
+readme = "README.md"
+packages = [{include = "market_calendar_tool", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
