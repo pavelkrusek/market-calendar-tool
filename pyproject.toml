@@ -4,16 +4,19 @@ version = "0.1.0"
 description = ""
 authors = ["Pavel Krusek <pavel@krusek.dk>"]
 readme = "README.md"
+license = "MIT"
 packages = [{include = "market_calendar_tool", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
+loguru = "^0.7.2"
 
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
 flake8 = "^7.1.1"
 black = "^24.10.0"
+isort = "^5.13.2"
 
 [build-system]
 requires = ["poetry-core"]

@@ -1,4 +1,7 @@
+from loguru import logger
+
+
 class BaseScraper:
 
     def test(self):
-        print("test")
+        logger.info("test")
