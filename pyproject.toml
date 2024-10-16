@@ -11,6 +11,8 @@ packages = [{ include = "market_calendar_tool", from = "src" }]
 python = "^3.12"
 loguru = "^0.7.2"
 requests = "^2.32.3"
+pandas = "^2.2.3"
+asyncio = "^3.4.3"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -21,7 +23,7 @@ isort = "^5.13.2"
 flake8-pyproject = "^1.2.3"
 
 [tool.flake8]
-max-line-length = 100
+max-line-length = 150
 exclude = [".git", "__pycache__"]
 ignore = ["E203", "W503"]
 
