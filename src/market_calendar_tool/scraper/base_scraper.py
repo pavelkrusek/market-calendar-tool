@@ -1,9 +1,8 @@
-from itertools import chain
-
 import requests
 from loguru import logger
 
 from .constants import Site, site_number_mapping
+from .data_processor import DataProcessingError, DataProcessor
 
 
 class BaseScraper:
@@ -28,11 +27,7 @@ class BaseScraper:
         self.session = requests.Session()
         self.session.headers.update(
             {
-                "User-Agent": (
-                    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-                    "(KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"
-                    # 'User-Agent': 'Scraper/0.1 (+pavel@krusek.dk)'
-                ),
+                "User-Agent": "Scraper/0.1 (+pavel@krusek.dk)",
                 "Accept": "application/json",
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             }
@@ -70,21 +65,12 @@ class BaseScraper:
 
     def _process_data(self, data):
         """
-        Process the JSON data returned from the AJAX request.
-
-        Args:
-            data (dict): The JSON data.
-
-        Returns:
-            list: A list of processed events.
+        Process the raw JSON data and convert it into a pandas DataFrame.
         """
         try:
-            events = list(
-                chain.from_iterable(
-                    day.get("events", []) for day in data.get("days", [])
-                )
-            )
-            return events
-        except (KeyError, TypeError) as e:
+            processor = DataProcessor(data)
+            df = processor.to_df()
+            return df
+        except DataProcessingError as e:
             logger.critical("Error processing data: %s", str(e))
             raise
