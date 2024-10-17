@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import List
 
 import pandas as pd
 
@@ -11,7 +10,7 @@ def scrape_calendar(
     date_from: str = None,
     date_to: str = None,
     extended: bool = False,
-) -> pd.DataFrame | ScrapeResult | List:
+) -> pd.DataFrame | ScrapeResult:
     """
     Scrape calendar data from the specified site.
 

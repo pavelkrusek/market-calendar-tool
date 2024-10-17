@@ -2,13 +2,13 @@ import asyncio
 import json
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from typing import List
 
 import aiohttp
 import pandas as pd
 from loguru import logger
 
 from .base_scraper import BaseScraper
+from .data_processor import DataProcessor
 
 
 @dataclass
@@ -26,7 +26,7 @@ class ExtendedScraper:
     def __getattr__(self, name):
         return getattr(self.base_scraper, name)
 
-    def scrape(self):
+    def scrape(self) -> ScrapeResult:
         try:
             asyncio.get_running_loop()
         except RuntimeError:
@@ -36,10 +36,9 @@ class ExtendedScraper:
                 future = executor.submit(self._run_coroutine, self._async_scrape())
                 return future.result()
 
-    async def _async_scrape(self) -> List:
-        pass
-        base_df = self.base_scraper.scrape()
-        event_ids = base_df["id"].tolist()
+    async def _async_scrape(self) -> ScrapeResult:
+        df_base = self.base_scraper.scrape()
+        event_ids = df_base["id"].tolist()
         semaphore = asyncio.Semaphore(5)
 
         async with aiohttp.ClientSession() as session:
@@ -57,7 +56,14 @@ class ExtendedScraper:
                 else:
                     successful_results.append(result)
 
-            return successful_results
+            processor = DataProcessor(successful_results)
+            df_specs = processor.to_specs_df()
+            df_history = processor.to_history_df()
+            df_news = processor.to_news_df()
+
+            return ScrapeResult(
+                base=df_base, specs=df_specs, history=df_history, news=df_news
+            )
 
     def _run_coroutine(self, coroutine) -> ScrapeResult:
         """
