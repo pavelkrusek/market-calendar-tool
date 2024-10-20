@@ -66,9 +66,6 @@ class ExtendedScraper:
             )
 
     def _run_coroutine(self, coroutine) -> ScrapeResult:
-        """
-        Helper method to run a coroutine in a new event loop within a separate thread.
-        """
         new_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(new_loop)
         try:
