@@ -27,12 +27,6 @@ Install the package via pip:
 pip install market-calendar-tool
 ```
 
-Alternatively, install the package via Conda:
-
-```bash
-conda install -c conda-forge market-calendar-tool
-```
-
 ## Requirements
 
 - **Python Version**: Python **3.12** or higher is required.
