@@ -22,6 +22,8 @@ flake8 = "^7.1.1"
 black = "^24.10.0"
 isort = "^5.13.2"
 flake8-pyproject = "^1.2.3"
+pytest-mock = "^3.14.0"
+freezegun = "^1.5.1"
 
 [tool.flake8]
 max-line-length = 150
