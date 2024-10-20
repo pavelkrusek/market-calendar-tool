@@ -30,7 +30,7 @@ class DataProcessor:
         return self._to_df(
             record_path=["data", "linked_threads", "news"],
             meta=[["data", "event_id"]],
-            rename_cols={"data.event_id": "id"},
+            rename_cols={"id": "news_id", "data.event_id": "id"},
         )
 
     def to_history_df(self) -> pd.DataFrame:
