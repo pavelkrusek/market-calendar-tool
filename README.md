@@ -2,16 +2,22 @@
 
 A Python package for scraping economic calendar data from various financial websites.
 
+## Legal notice
+
+Please note that scraping data from websites must comply with the site's terms of service and legal requirements. The robots.txt files of the supported sites do not explicitly restrict scraping, but users should ensure they comply with local regulations and the website's terms.
+
 ## Features
 
 - **Multi-Site Support**: Scrape data from multiple sites:
-  - ForexFactory
-  - MetalsMine
-  - EnergyExch
-  - CryptoCraft
+  - [ForexFactory](https://www.forexfactory.com/calendar)
+  - [MetalsMine](https://www.metalsmine.com/calendar)
+  - [EnergyExch](https://www.energyexch.com/calendar)
+  - [CryptoCraft](https://www.cryptocraft.com/calendar)
+
 - **Flexible Date Range**: Specify custom date ranges for scraping.
 - **Extended Data Retrieval**: Option to retrieve extended data for each event.
-- **Easy-to-Use API**: Simple and intuitive functions to get you started quickly.
+- **Easy-to-Use API**: Simple and intuitive function to get you started quickly.
+- **DataFrame Output**: Returns raw data scraped from the website as pandas DataFrame(s) for further processing.
 
 ## Installation
 
@@ -20,6 +26,19 @@ Install the package via pip:
 ```bash
 pip install market-calendar-tool
 ```
+
+Alternatively, install the package via Conda:
+
+```bash
+conda install -c conda-forge market-calendar-tool
+```
+
+## Requirements
+
+- **Python Version**: Python **3.12** or higher is required.
+- **Dependencies**:
+  - The package relies on several libraries such as `loguru`, `requests`, `pandas`, `asyncio`, and `aiohttp`.
+  - These libraries will be automatically installed when you install the package.
 
 ## Usage
 
@@ -110,4 +129,4 @@ Contributions are welcome! Please open an issue or submit a pull request on GitH
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-Feel free to customize this draft to better suit your project's needs!
+Feel free to customize this package to better suit your project's needs!
