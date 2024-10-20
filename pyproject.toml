@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "market-calendar-tool"
 version = "0.1.0"
-description = ""
+description = "Market Calendar Tool is a Python package that scrapes economic calendar data from multiple financial websites and returns it as pandas DataFrames for easy analysis."
 authors = ["Pavel Krusek <pavel@krusek.dk>"]
 readme = "README.md"
 license = "MIT"
