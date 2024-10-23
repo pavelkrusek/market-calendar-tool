@@ -36,13 +36,13 @@ class BaseScraper:
             response.raise_for_status()
             try:
                 data = response.json()
-                logger.info("Successfully scraped base data from %s", url)
+                logger.info(f"Successfully scraped base data from {url}")
                 return self._process_data(data)
             except requests.exceptions.JSONDecodeError as e:
-                logger.critical("Error decoding JSON from %s: %s", url, str(e))
+                logger.critical(f"Error decoding JSON from {url}: {str(e)}")
                 raise
         except requests.exceptions.RequestException as e:
-            logger.critical("Error scraping base data: %s", str(e))
+            logger.critical(f"Error scraping base data: {str(e)}")
             raise
 
     def _process_data(self, data):
@@ -51,5 +51,5 @@ class BaseScraper:
             df = processor.to_base_df()
             return df
         except DataProcessingError as e:
-            logger.critical("Error processing data: %s", str(e))
+            logger.critical(f"Error processing data: {str(e)}")
             raise
