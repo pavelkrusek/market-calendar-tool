@@ -17,7 +17,7 @@ class BaseScraper:
             {
                 "User-Agent": "market-calendar-tool (+https://github.com/pavelkrusek/market-calendar-tool)",
                 "Accept": "application/json",
-                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "Content-Type": "application/json",
             }
         )
 
@@ -26,12 +26,12 @@ class BaseScraper:
 
         form_data = {
             "begin_date": self.date_from,
-            "end_date": self.date_from,
+            "end_date": self.date_to,
         }
 
         try:
             response = self.session.post(
-                url, data=form_data, headers=self.session.headers, timeout=10
+                url, json=form_data, headers=self.session.headers, timeout=10
             )
             response.raise_for_status()
             try:

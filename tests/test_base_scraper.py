@@ -23,10 +23,7 @@ def test_initialization(scraper):
     assert scraper.base_url == Site.FOREXFACTORY.value
     assert scraper.site_number == site_number_mapping.get(Site.FOREXFACTORY)
     assert scraper.session.headers["Accept"] == "application/json"
-    assert (
-        scraper.session.headers["Content-Type"]
-        == "application/x-www-form-urlencoded; charset=UTF-8"
-    )
+    assert scraper.session.headers["Content-Type"] == "application/json"
 
 
 def test_scrape_successful(scraper):
@@ -46,11 +43,11 @@ def test_scrape_successful(scraper):
         expected_url = f"{scraper.base_url}/apply-settings/1"
         expected_data = {
             "begin_date": scraper.date_from,
-            "end_date": scraper.date_from,
+            "end_date": scraper.date_to,
         }
         mock_post.assert_called_once_with(
             expected_url,
-            data=expected_data,
+            json=expected_data,
             headers=scraper.session.headers,
             timeout=10,
         )
