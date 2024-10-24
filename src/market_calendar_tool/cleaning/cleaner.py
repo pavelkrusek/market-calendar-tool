@@ -1,5 +1,6 @@
 import re
 from enum import Enum
+from typing import Optional
 
 import pandas as pd
 import pycountry
@@ -24,7 +25,9 @@ impact_mapping = {
 }
 
 
-def is_valid_currency(currency: str) -> bool:
+def is_valid_currency(currency: Optional[str]) -> bool:
+    if currency is None:
+        return False
     try:
         return pycountry.currencies.get(alpha_3=currency.upper()) is not None
     except Exception as e:
@@ -33,7 +36,9 @@ def is_valid_currency(currency: str) -> bool:
 
 
 def camel_to_snake(name: str) -> str:
-    return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
+    return re.sub(
+        r"([A-Z]+)([A-Z][a-z])", r"\1_\2", re.sub(r"([a-z\d])([A-Z])", r"\1_\2", name)
+    ).lower()
 
 
 def clean_html(html_content):
@@ -128,6 +133,12 @@ def clean_specs(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def clean_history(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.drop(columns=["impact_class"])
+    df = df.rename(columns=lambda col: camel_to_snake(col))
+    df["date"] = pd.to_datetime(
+        df["date"], format="%b %d, %Y", errors="coerce"
+    ).dt.tz_localize("UTC")
+
     return df
 
 
