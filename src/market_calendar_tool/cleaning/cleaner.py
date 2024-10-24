@@ -3,6 +3,7 @@ from enum import Enum
 
 import pandas as pd
 import pycountry
+from bs4 import BeautifulSoup
 from loguru import logger
 
 from market_calendar_tool.scraper.extended_scraper import ScrapeResult
@@ -35,10 +36,50 @@ def camel_to_snake(name: str) -> str:
     return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
 
 
-def clean_data(df: pd.DataFrame | ScrapeResult) -> pd.DataFrame:
-    if isinstance(df, ScrapeResult):
-        df = df.base
+def clean_html(html_content):
+    soup = BeautifulSoup(html_content, "html.parser")
 
+    for a in soup.find_all("a"):
+        text = a.get_text()
+        href = a.get("href", "")
+        replacement = f"{text} ({href})" if href else text
+        a.replace_with(replacement)
+
+    return soup.get_text(separator=" ", strip=True)
+
+
+def clean_data(input_data: pd.DataFrame | ScrapeResult) -> pd.DataFrame | ScrapeResult:
+    if isinstance(input_data, ScrapeResult):
+        return clean_scrape_result(input_data)
+    elif isinstance(input_data, pd.DataFrame):
+        return clean_base(input_data)
+    else:
+        raise TypeError("Input must be a pandas DataFrame or a ScrapeResult instance.")
+
+
+def clean_scrape_result(scrape_result: ScrapeResult) -> ScrapeResult:
+    cleaned_base = clean_base(scrape_result.base)
+
+    valid_ids = set(cleaned_base["id"])
+
+    cleaned_specs = clean_specs(scrape_result.specs)
+    cleaned_specs = cleaned_specs[cleaned_specs["id"].isin(valid_ids)]
+
+    cleaned_history = clean_history(scrape_result.history)
+    cleaned_history = cleaned_history[cleaned_history["id"].isin(valid_ids)]
+
+    cleaned_news = clean_news(scrape_result.news)
+    cleaned_news = cleaned_news[cleaned_news["id"].isin(valid_ids)]
+
+    return ScrapeResult(
+        base=cleaned_base,
+        specs=cleaned_specs,
+        history=cleaned_history,
+        news=cleaned_news,
+    )
+
+
+def clean_base(df: pd.DataFrame) -> pd.DataFrame:
     columns_to_validate = ["currency", "dateline", "impactTitle"]
     df = df.rename(columns={col: f"{col}_raw" for col in columns_to_validate})
 
@@ -76,5 +117,22 @@ def clean_data(df: pd.DataFrame | ScrapeResult) -> pd.DataFrame:
     df["currency"] = df["currency"].replace("All", "WORLD")
     df = df[columns_to_keep]
     df = df.rename(columns=lambda col: camel_to_snake(col))
+
+    return df
+
+
+def clean_specs(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.drop(columns=["is_notice"]).rename(columns={"html": "description"})
+    df["description"] = df["description"].apply(clean_html)
+    return df
+
+
+def clean_history(df: pd.DataFrame) -> pd.DataFrame:
+    return df
+
+
+def clean_news(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.rename(columns={"html": "text"})
+    df["text"] = df["text"].apply(clean_html)
 
     return df

@@ -10,6 +10,10 @@ from market_calendar_tool.scraper.models import ScrapeOptions
 from .cleaning.cleaner import clean_data
 from .scraper import BaseScraper, ExtendedScraper, ScrapeResult, Site
 
+# from .cleaning.cleaner import clean_data
+from .scraper import ExtendedScraper, ScrapeResult, Site
+from .scraper.base_scraper import BaseScraper
+
 
 def scrape_calendar_raw(
     site: Site = Site.FOREXFACTORY,
@@ -48,9 +52,16 @@ def scrape_calendar_raw(
         if options is None:
             options = ScrapeOptions()
         return ExtendedScraper(base_scraper, options=options).scrape()
+        result = ExtendedScraper(base_scraper).scrape()
+        result.base.to_parquet(get_path("base"), index=False)
+        result.history.to_parquet(get_path("history"), index=False)
+        result.news.to_parquet(get_path("news"), index=False)
+        result.specs.to_parquet(get_path("specs"), index=False)
+        return result
+        # return ExtendedScraper(base_scraper).scrape()
     else:
         result = base_scraper.scrape()
-        result.to_parquet(get_path(), index=False)
+        result.base.to_parquet(get_path("base"), index=False)
         return base_scraper.scrape()
 
 
@@ -60,18 +71,21 @@ def scrape_calendar(
     date_to: Optional[str] = None,
     extended: bool = False,
 ) -> pd.DataFrame:
-    raw_df = pd.read_parquet(get_path())
-    # raw_df = scrape_calendar_raw(site, date_from, date_to, extended)
-    cleaned_df = clean_data(raw_df)
+
+    # raw_df = pd.read_parquet(get_path())
+    # # raw_df = scrape_calendar_raw(site, date_from, date_to, extended)
+    # cleaned_df = clean_data(raw_df)
 
     if extended:
-        return pd.DataFrame()
+        df = pd.read_parquet(get_path("history"))
+        return clean_history(df)
     else:
-        return cleaned_df
+        base_df = pd.read_parquet(get_path("base"))
+        return base_df
 
 
-def get_path():
+def get_path(file):
     current_directory = os.getcwd()
-    file_name = "data.parquet"
+    file_name = f"{file}.parquet"
     file_path = os.path.join(current_directory, file_name)
     return file_path
