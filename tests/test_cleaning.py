@@ -3,7 +3,6 @@ import pytest
 from market_calendar_tool.cleaning.cleaner import (
     ImpactLevel,
     camel_to_snake,
-    clean_html,
     impact_mapping,
     is_valid_currency,
 )

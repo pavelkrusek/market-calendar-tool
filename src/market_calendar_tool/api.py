@@ -7,12 +7,10 @@ from loguru import logger
 
 from market_calendar_tool.scraper.models import ScrapeOptions
 
-from .cleaning.cleaner import clean_data
-from .scraper import BaseScraper, ExtendedScraper, ScrapeResult, Site
+from .cleaning.cleaner import clean_data, clean_history
 
 # from .cleaning.cleaner import clean_data
-from .scraper import ExtendedScraper, ScrapeResult, Site
-from .scraper.base_scraper import BaseScraper
+from .scraper import BaseScraper, ExtendedScraper, ScrapeResult, Site
 
 
 def scrape_calendar_raw(
@@ -51,8 +49,8 @@ def scrape_calendar_raw(
     if extended:
         if options is None:
             options = ScrapeOptions()
-        return ExtendedScraper(base_scraper, options=options).scrape()
-        result = ExtendedScraper(base_scraper).scrape()
+        # return ExtendedScraper(base_scraper, options=options).scrape()
+        result = ExtendedScraper(base_scraper, options=options).scrape()
         result.base.to_parquet(get_path("base"), index=False)
         result.history.to_parquet(get_path("history"), index=False)
         result.news.to_parquet(get_path("news"), index=False)
