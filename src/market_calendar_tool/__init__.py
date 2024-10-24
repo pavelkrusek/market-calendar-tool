@@ -1,4 +1,5 @@
-from .api import ScrapeResult, scrape_calendar
+from .api import scrape_calendar
 from .scraper.constants import Site
+from .scraper.models import ScrapeOptions, ScrapeResult
 
-__all__ = ["scrape_calendar", "ScrapeResult", "Site"]
+__all__ = ["ScrapeOptions", "ScrapeResult", "scrape_calendar", "Site"]

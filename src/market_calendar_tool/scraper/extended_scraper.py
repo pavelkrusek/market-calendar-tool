@@ -1,27 +1,20 @@
 import asyncio
 import json
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass
 
 import aiohttp
-import pandas as pd
 from loguru import logger
+
+from market_calendar_tool.scraper.models import ScrapeOptions, ScrapeResult
 
 from .base_scraper import BaseScraper
 from .data_processor import DataProcessor
 
 
-@dataclass
-class ScrapeResult:
-    base: pd.DataFrame
-    specs: pd.DataFrame
-    history: pd.DataFrame
-    news: pd.DataFrame
-
-
 class ExtendedScraper:
-    def __init__(self, base_scraper: BaseScraper):
+    def __init__(self, base_scraper: BaseScraper, options: ScrapeOptions):
         self.base_scraper = base_scraper
+        self.options = options
 
     def __getattr__(self, name):
         return getattr(self.base_scraper, name)
@@ -39,7 +32,7 @@ class ExtendedScraper:
     async def _async_scrape(self) -> ScrapeResult:
         df_base = self.base_scraper.scrape()
         event_ids = df_base["id"].tolist()
-        semaphore = asyncio.Semaphore(5)
+        semaphore = asyncio.Semaphore(self.options.max_parallel_tasks)
 
         async with aiohttp.ClientSession() as session:
             tasks = [

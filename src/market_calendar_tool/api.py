@@ -3,6 +3,8 @@ from typing import Optional
 
 import pandas as pd
 
+from market_calendar_tool.scraper.models import ScrapeOptions
+
 from .scraper import BaseScraper, ExtendedScraper, ScrapeResult, Site
 
 
@@ -11,6 +13,7 @@ def scrape_calendar(
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
     extended: bool = False,
+    options: Optional[ScrapeOptions] = None,
 ) -> pd.DataFrame | ScrapeResult:
     def validate_and_format_date(date_str, default_date):
         if date_str:
@@ -37,6 +40,8 @@ def scrape_calendar(
 
     base_scraper = BaseScraper(site, date_from_str, date_to_str)
     if extended:
-        return ExtendedScraper(base_scraper).scrape()
+        if options is None:
+            options = ScrapeOptions()
+        return ExtendedScraper(base_scraper, options=options).scrape()
     else:
         return base_scraper.scrape()

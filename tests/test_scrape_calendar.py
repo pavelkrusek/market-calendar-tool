@@ -6,6 +6,7 @@ from freezegun import freeze_time
 
 from market_calendar_tool.api import scrape_calendar
 from market_calendar_tool.scraper.base_scraper import Site
+from market_calendar_tool.scraper.models import ScrapeOptions
 
 
 @pytest.fixture
@@ -101,6 +102,10 @@ def test_scrape_calendar_extended(mock_base_scraper, mock_extended_scraper):
 
     scrape_calendar(extended=True)
 
+    custom_options = ScrapeOptions(max_parallel_tasks=5)
+
     mock_base_scraper.assert_called_with(Site.FOREXFACTORY, today, next_week)
-    mock_extended_scraper.assert_called_with(mock_base_scraper.return_value)
+    mock_extended_scraper.assert_called_with(
+        mock_base_scraper.return_value, options=custom_options
+    )
     mock_extended_instance.scrape.assert_called_once()
