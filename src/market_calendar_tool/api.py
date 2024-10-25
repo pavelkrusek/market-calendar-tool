@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -7,9 +6,7 @@ from loguru import logger
 
 from market_calendar_tool.scraper.models import ScrapeOptions
 
-from .cleaning.cleaner import clean_data, clean_history
-
-# from .cleaning.cleaner import clean_data
+from .cleaning.cleaner import clean_data
 from .scraper import BaseScraper, ExtendedScraper, ScrapeResult, Site
 
 
@@ -49,17 +46,8 @@ def scrape_calendar_raw(
     if extended:
         if options is None:
             options = ScrapeOptions()
-        # return ExtendedScraper(base_scraper, options=options).scrape()
-        result = ExtendedScraper(base_scraper, options=options).scrape()
-        result.base.to_parquet(get_path("base"), index=False)
-        result.history.to_parquet(get_path("history"), index=False)
-        result.news.to_parquet(get_path("news"), index=False)
-        result.specs.to_parquet(get_path("specs"), index=False)
-        return result
-        # return ExtendedScraper(base_scraper).scrape()
+        return ExtendedScraper(base_scraper, options=options).scrape()
     else:
-        result = base_scraper.scrape()
-        result.base.to_parquet(get_path("base"), index=False)
         return base_scraper.scrape()
 
 
@@ -68,22 +56,9 @@ def scrape_calendar(
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
     extended: bool = False,
-) -> pd.DataFrame:
+    options: Optional[ScrapeOptions] = None,
+) -> pd.DataFrame | ScrapeResult:
+    result = scrape_calendar_raw(site, date_from, date_to, extended, options)
+    cleaned_result = clean_data(result)
 
-    # raw_df = pd.read_parquet(get_path())
-    # # raw_df = scrape_calendar_raw(site, date_from, date_to, extended)
-    # cleaned_df = clean_data(raw_df)
-
-    if extended:
-        df = pd.read_parquet(get_path("history"))
-        return clean_history(df)
-    else:
-        base_df = pd.read_parquet(get_path("base"))
-        return base_df
-
-
-def get_path(file):
-    current_directory = os.getcwd()
-    file_name = f"{file}.parquet"
-    file_path = os.path.join(current_directory, file_name)
-    return file_path
+    return cleaned_result
