@@ -2,13 +2,15 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 import pandas as pd
+from loguru import logger
 
 from market_calendar_tool.scraper.models import ScrapeOptions
 
+from .cleaning.cleaner import clean_data
 from .scraper import BaseScraper, ExtendedScraper, ScrapeResult, Site
 
 
-def scrape_calendar(
+def scrape_calendar_raw(
     site: Site = Site.FOREXFACTORY,
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
@@ -38,6 +40,8 @@ def scrape_calendar(
     date_from_str: str = date_from_dt.strftime("%Y-%m-%d")
     date_to_str: str = date_to_dt.strftime("%Y-%m-%d")
 
+    logger.info(f"Scraping calendar from {date_from_str} to {date_to_str}")
+
     base_scraper = BaseScraper(site, date_from_str, date_to_str)
     if extended:
         if options is None:
@@ -45,3 +49,16 @@ def scrape_calendar(
         return ExtendedScraper(base_scraper, options=options).scrape()
     else:
         return base_scraper.scrape()
+
+
+def scrape_calendar(
+    site: Site = Site.FOREXFACTORY,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    extended: bool = False,
+    options: Optional[ScrapeOptions] = None,
+) -> pd.DataFrame | ScrapeResult:
+    result = scrape_calendar_raw(site, date_from, date_to, extended, options)
+    cleaned_result = clean_data(result)
+
+    return cleaned_result
