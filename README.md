@@ -18,7 +18,9 @@ Please note that scraping data from websites must comply with the site's terms o
 - **Extended Data Retrieval**: Option to retrieve extended data for each event.
 - **Configurable Concurrency**: Use `ScrapeOptions` to configure the number of concurrent asyncio tasks (`max_parallel_tasks`), optimizing scraping performance based on system capabilities.
 - **Easy-to-Use API**: Simple and intuitive function to get you started quickly.
-- **DataFrame Output**: Returns raw data scraped from the website as pandas DataFrame(s) for further processing.
+- **DataFrame Output**: Returns raw data scraped from the website as *pandas* DataFrame(s) for further processing.
+- **Data Handling**: Always returns scraped data encapsulated in a `ScrapeResult` object for consistent data management.
+- **Data Cleaning and Validation**: Provides functionality to clean and validate scraped data for further processing, ensuring data quality and consistency.
 
 ## Installation
 
@@ -40,22 +42,29 @@ pip install market-calendar-tool
 | pandas     | ^2.2.3  |
 | asyncio    | ^3.4.3  |
 | aiohttp    | ^3.10.10 |
+| pycountry  | ^24.6.1 |
+| beautifulsoup4 | ^4.12.3 |
 
 ## Usage
 
 Import the package and use the `scrape_calendar` function with optional `ScrapeOptions` for advanced configurations.
 
 ```python
-from market_calendar_tool import scrape_calendar, Site, ScrapeResult, ScrapeOptions
+from market_calendar_tool import scrape_calendar, clean_calendar_data, Site, ScrapeOptions
 
-# Basic usage: scrape data from today to one week ahead from ForexFactory
-df = scrape_calendar()
+# Stage 1: Scrape raw data from today to one week ahead from ForexFactory
+raw_data = scrape_calendar()
+
+# Stage 2: Clean the data
+cleaned_data = clean_calendar_data(raw_data)
 
 # Specify a different site
-df = scrape_calendar(site=Site.METALSMINE)
+raw_data = scrape_calendar(site=Site.METALSMINE)
+cleaned_data = clean_calendar_data(raw_data)
 
 # Specify date range
-df = scrape_calendar(date_from="2024-01-01", date_to="2024-01-07")
+raw_data = scrape_calendar(date_from="2024-01-01", date_to="2024-01-07")
+cleaned_data = clean_calendar_data(raw_data)
 
 # Retrieve extended data
 result = scrape_calendar(extended=True)
@@ -66,7 +75,8 @@ print(result.news)     # Related news articles
 
 # Advanced usage: configure asyncio task concurrency
 custom_options = ScrapeOptions(max_parallel_tasks=10)
-result = scrape_calendar(extended=True, options=custom_options)
+raw_data = scrape_calendar(options=custom_options)
+cleaned_data = clean_calendar_data(raw_data)
 ```
 
 ## Parameters
@@ -84,18 +94,14 @@ result = scrape_calendar(extended=True, options=custom_options)
 
 ## Return Values
 
-- When `extended=False`: Returns a `pandas.DataFrame` containing basic event data.
-- When `extended=True`: Returns a `ScrapeResult` object with the following attributes:
-  - `base`: DataFrame with basic event data.
-  - `specs`: DataFrame with event specifications.
-  - `history`: DataFrame with historical data.
-  - `news`: DataFrame with related news articles.
+`scrape_calendar`: Always returns a `ScrapeResult` object containing the raw scraped data.
+`clean_calendar_data`: Returns a `ScrapeResult` object containing the cleaned data.
 
 ## API Reference
 
 ### `scrape_calendar`
 
-Function to scrape calendar data.
+Function to scrape raw calendar data from the specified site within the given date range.
 
 **Signature:**
 
@@ -106,7 +112,7 @@ def scrape_calendar(
     date_to: Optional[str] = None,
     extended: bool = False,
     options: Optional[ScrapeOptions] = None,
-) -> Union[pd.DataFrame, ScrapeResult]:
+) -> ScrapeResult:
     ...
 ```
 
@@ -120,7 +126,26 @@ def scrape_calendar(
 
 **Returns**:
 
-- `pd.DataFrame` or `ScrapeResult`: The scraped data as a DataFrame or a `ScrapeResult` object, depending on the `extended` parameter.
+- `ScrapeResult`: The raw scraped data encapsulated in a ScrapeResult object.
+
+### `clean_calendar_data`
+
+Function to clean the scraped calendar data.
+
+**Signature**:
+
+```python
+def clean_calendar_data(scrape_result: ScrapeResult) -> ScrapeResult:
+    ...
+```
+
+**Parameters**:
+
+- `scrape_result` (`ScrapeResult`): The raw scraped data to be cleaned.
+
+**Returns**:
+
+- `ScrapeResult`: The cleaned data encapsulated in a `ScrapeResult` object.
 
 ### `Site` Enum
 
