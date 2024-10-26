@@ -30,7 +30,8 @@ class ExtendedScraper:
                 return future.result()
 
     async def _async_scrape(self) -> ScrapeResult:
-        df_base = self.base_scraper.scrape().base
+        base_result = self.base_scraper.scrape()
+        df_base = base_result.base
         event_ids = df_base["id"].tolist()
         semaphore = asyncio.Semaphore(self.options.max_parallel_tasks)
 
@@ -50,13 +51,12 @@ class ExtendedScraper:
                     successful_results.append(result)
 
             processor = DataProcessor(successful_results)
-            df_specs = processor.to_specs_df()
-            df_history = processor.to_history_df()
-            df_news = processor.to_news_df()
 
-            return ScrapeResult(
-                base=df_base, specs=df_specs, history=df_history, news=df_news
-            )
+            base_result.specs = processor.to_specs_df()
+            base_result.history = processor.to_history_df()
+            base_result.news = processor.to_news_df()
+
+            return base_result
 
     def _run_coroutine(self, coroutine) -> ScrapeResult:
         new_loop = asyncio.new_event_loop()

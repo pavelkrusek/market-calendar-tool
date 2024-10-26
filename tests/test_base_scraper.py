@@ -5,9 +5,8 @@ import pytest
 import requests
 
 from market_calendar_tool.scraper.base_scraper import BaseScraper
-from market_calendar_tool.scraper.constants import Site, site_number_mapping
 from market_calendar_tool.scraper.data_processor import DataProcessingError
-from market_calendar_tool.scraper.models import ScrapeResult
+from market_calendar_tool.scraper.models import ScrapeResult, Site, site_number_mapping
 
 
 @pytest.fixture

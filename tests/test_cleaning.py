@@ -10,7 +10,7 @@ from market_calendar_tool.cleaning.cleaner import (
     clean_specs,
     is_valid_currency,
 )
-from market_calendar_tool.scraper.models import ScrapeResult
+from market_calendar_tool.scraper.models import ScrapeResult, Site
 
 
 def test_is_valid_currency():
@@ -227,6 +227,7 @@ def sample_scrape_result(
     sample_base_df, sample_specs_df, sample_history_df, sample_news_df
 ):
     return ScrapeResult(
+        site=Site.FOREXFACTORY,
         base=sample_base_df,
         specs=sample_specs_df,
         history=sample_history_df,
@@ -257,7 +258,7 @@ def test_clean_data(sample_scrape_result):
 
 
 def test_clean_data_with_empty_dfs(sample_base_df):
-    scrape_result = ScrapeResult(base=sample_base_df)
+    scrape_result = ScrapeResult(site=Site.FOREXFACTORY, base=sample_base_df)
 
     cleaned = clean_data(scrape_result)
 

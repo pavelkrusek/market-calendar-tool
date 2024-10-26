@@ -85,6 +85,7 @@ def clean_data(scrape_result: ScrapeResult) -> ScrapeResult:
         cleaned_news = cleaned_news[cleaned_news["id"].isin(valid_ids)]
 
     return ScrapeResult(
+        scrape_result.site,
         base=cleaned_base,
         specs=cleaned_specs,
         history=cleaned_history,
