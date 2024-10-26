@@ -1,5 +1,6 @@
 import re
 from enum import Enum
+from functools import wraps
 from typing import Optional
 
 import pandas as pd
@@ -23,6 +24,19 @@ impact_mapping = {
     "High Impact Expected": ImpactLevel.HIGH.value,
     "Non-Economic": ImpactLevel.NON_ECONOMIC.value,
 }
+
+
+def handle_empty(func):
+    @wraps(func)
+    def wrapper(df: pd.DataFrame) -> pd.DataFrame:
+        if df.empty:
+            logger.debug(
+                f"{func.__name__} received an empty DataFrame; skipping cleaning."
+            )
+            return df
+        return func(df)
+
+    return wrapper
 
 
 def is_valid_currency(currency: Optional[str]) -> bool:
@@ -53,28 +67,22 @@ def clean_html(html_content):
     return soup.get_text(separator=" ", strip=True)
 
 
-def clean_data(input_data: pd.DataFrame | ScrapeResult) -> pd.DataFrame | ScrapeResult:
-    if isinstance(input_data, ScrapeResult):
-        return clean_scrape_result(input_data)
-    elif isinstance(input_data, pd.DataFrame):
-        return clean_base(input_data)
-    else:
-        raise TypeError("Input must be a pandas DataFrame or a ScrapeResult instance.")
-
-
-def clean_scrape_result(scrape_result: ScrapeResult) -> ScrapeResult:
+def clean_data(scrape_result: ScrapeResult) -> ScrapeResult:
     cleaned_base = clean_base(scrape_result.base)
 
     valid_ids = set(cleaned_base["id"])
 
     cleaned_specs = clean_specs(scrape_result.specs)
-    cleaned_specs = cleaned_specs[cleaned_specs["id"].isin(valid_ids)]
+    if not cleaned_specs.empty:
+        cleaned_specs = cleaned_specs[cleaned_specs["id"].isin(valid_ids)]
 
     cleaned_history = clean_history(scrape_result.history)
-    cleaned_history = cleaned_history[cleaned_history["id"].isin(valid_ids)]
+    if not cleaned_history.empty:
+        cleaned_history = cleaned_history[cleaned_history["id"].isin(valid_ids)]
 
     cleaned_news = clean_news(scrape_result.news)
-    cleaned_news = cleaned_news[cleaned_news["id"].isin(valid_ids)]
+    if not cleaned_history.empty:
+        cleaned_news = cleaned_news[cleaned_news["id"].isin(valid_ids)]
 
     return ScrapeResult(
         base=cleaned_base,
@@ -126,12 +134,14 @@ def clean_base(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+@handle_empty
 def clean_specs(df: pd.DataFrame) -> pd.DataFrame:
     df = df.drop(columns=["is_notice"]).rename(columns={"html": "description"})
     df["description"] = df["description"].apply(clean_html)
     return df
 
 
+@handle_empty
 def clean_history(df: pd.DataFrame) -> pd.DataFrame:
     df = df.drop(columns=["impact_class"])
     df = df.rename(columns=lambda col: camel_to_snake(col))
@@ -142,6 +152,7 @@ def clean_history(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+@handle_empty
 def clean_news(df: pd.DataFrame) -> pd.DataFrame:
     df = df.rename(columns={"html": "text"})
     df["text"] = df["text"].apply(clean_html)

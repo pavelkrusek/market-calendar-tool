@@ -7,7 +7,6 @@ from market_calendar_tool.cleaning.cleaner import (
     clean_data,
     clean_history,
     clean_news,
-    clean_scrape_result,
     clean_specs,
     is_valid_currency,
 )
@@ -235,34 +234,41 @@ def sample_scrape_result(
     )
 
 
-def test_clean_scrape_result(sample_scrape_result):
-    cleaned_scrape_result = clean_scrape_result(sample_scrape_result)
-
-    cleaned_base = cleaned_scrape_result.base
-    assert cleaned_base.shape[0] == 3
-
-    cleaned_specs = cleaned_scrape_result.specs
-    assert cleaned_specs.shape[0] == 2
-
-    cleaned_history = cleaned_scrape_result.history
-    assert cleaned_history.shape[0] == 2
-
-    cleaned_news = cleaned_scrape_result.news
-    assert cleaned_news.shape[0] == 1
-
-
-def test_clean_data_scrape_result(sample_scrape_result):
+def test_clean_data(sample_scrape_result):
     cleaned = clean_data(sample_scrape_result)
+
     assert isinstance(cleaned, ScrapeResult)
     assert "base" in cleaned.__dataclass_fields__
     assert "specs" in cleaned.__dataclass_fields__
     assert "history" in cleaned.__dataclass_fields__
     assert "news" in cleaned.__dataclass_fields__
 
+    cleaned_base = cleaned.base
+    assert cleaned_base.shape[0] == 3
 
-def test_clean_data_single_df(sample_base_df):
-    cleaned_df = clean_data(sample_base_df)
-    assert isinstance(cleaned_df, pd.DataFrame)
+    cleaned_specs = cleaned.specs
+    assert cleaned_specs.shape[0] == 2
+
+    cleaned_history = cleaned.history
+    assert cleaned_history.shape[0] == 2
+
+    cleaned_news = cleaned.news
+    assert cleaned_news.shape[0] == 1
+
+
+def test_clean_data_with_empty_dfs(sample_base_df):
+    scrape_result = ScrapeResult(base=sample_base_df)
+
+    cleaned = clean_data(scrape_result)
+
+    assert isinstance(cleaned, ScrapeResult)
+
+    assert "base" in cleaned.__dataclass_fields__
+    assert "specs" in cleaned.__dataclass_fields__
+    assert "history" in cleaned.__dataclass_fields__
+    assert "news" in cleaned.__dataclass_fields__
+
+    cleaned_base = cleaned.base
     expected_columns = [
         "id",
         "name",
@@ -277,5 +283,8 @@ def test_clean_data_single_df(sample_base_df):
         "revision_better_worse",
         "site_id",
     ]
-    assert list(cleaned_df.columns) == expected_columns
-    assert list(cleaned_df.columns) == expected_columns
+    assert list(cleaned_base.columns) == expected_columns
+
+    assert cleaned.specs.empty, "Specs DataFrame should be empty"
+    assert cleaned.history.empty, "History DataFrame should be empty"
+    assert cleaned.news.empty, "News DataFrame should be empty"

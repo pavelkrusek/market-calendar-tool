@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pandas as pd
 
@@ -15,6 +15,6 @@ class ScrapeOptions:
 @dataclass
 class ScrapeResult:
     base: pd.DataFrame
-    specs: pd.DataFrame
-    history: pd.DataFrame
-    news: pd.DataFrame
+    specs: pd.DataFrame = field(default_factory=pd.DataFrame)
+    history: pd.DataFrame = field(default_factory=pd.DataFrame)
+    news: pd.DataFrame = field(default_factory=pd.DataFrame)

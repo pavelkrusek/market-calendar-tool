@@ -16,7 +16,7 @@ def mock_base_scraper():
         "market_calendar_tool.scraper.base_scraper.BaseScraper", autospec=True
     ) as MockBaseScraper:
         mock_scraper = MockBaseScraper.return_value
-        mock_scraper.scrape.return_value = df
+        mock_scraper.scrape.return_value = ScrapeResult(base=df)
 
         mock_scraper.site = Site.FOREXFACTORY
         mock_scraper.site_number = 1
