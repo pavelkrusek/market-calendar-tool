@@ -7,6 +7,7 @@ import requests
 from market_calendar_tool.scraper.base_scraper import BaseScraper
 from market_calendar_tool.scraper.constants import Site, site_number_mapping
 from market_calendar_tool.scraper.data_processor import DataProcessingError
+from market_calendar_tool.scraper.models import ScrapeResult
 
 
 @pytest.fixture
@@ -37,7 +38,14 @@ def test_scrape_successful(scraper):
             scraper, "_process_data", return_value="processed_data"
         ) as mock_process:
             result = scraper.scrape()
-            assert result == "processed_data"
+            assert isinstance(
+                result, ScrapeResult
+            ), "Result should be a ScrapeResult instance"
+            assert result.base == "processed_data", "Base should be 'processed_data'"
+            assert result.specs.empty, "Specs DataFrame should be empty"
+            assert result.history.empty, "History DataFrame should be empty"
+            assert result.news.empty, "News DataFrame should be empty"
+
             mock_process.assert_called_once_with({"data": "test_data"})
 
         expected_url = f"{scraper.base_url}/apply-settings/1"
