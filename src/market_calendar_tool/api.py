@@ -16,7 +16,7 @@ def scrape_calendar_raw(
     date_to: Optional[str] = None,
     extended: bool = False,
     options: Optional[ScrapeOptions] = None,
-) -> pd.DataFrame | ScrapeResult:
+) -> ScrapeResult:
     def validate_and_format_date(date_str, default_date):
         if date_str:
             try:
@@ -57,7 +57,7 @@ def scrape_calendar(
     date_to: Optional[str] = None,
     extended: bool = False,
     options: Optional[ScrapeOptions] = None,
-) -> pd.DataFrame | ScrapeResult:
+) -> ScrapeResult:
     result = scrape_calendar_raw(site, date_from, date_to, extended, options)
     cleaned_result = clean_data(result)
 

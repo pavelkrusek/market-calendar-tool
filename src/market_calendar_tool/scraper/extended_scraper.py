@@ -30,7 +30,7 @@ class ExtendedScraper:
                 return future.result()
 
     async def _async_scrape(self) -> ScrapeResult:
-        df_base = self.base_scraper.scrape()
+        df_base = self.base_scraper.scrape().base
         event_ids = df_base["id"].tolist()
         semaphore = asyncio.Semaphore(self.options.max_parallel_tasks)
 
