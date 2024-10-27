@@ -44,6 +44,7 @@ pip install market-calendar-tool
 | pandas     | ^2.2.3  |
 | asyncio    | ^3.4.3  |
 | aiohttp    | ^3.10.10 |
+| pyarrow    | ^17.0.0 |
 | pycountry  | ^24.6.1 |
 | beautifulsoup4 | ^4.12.3 |
 
