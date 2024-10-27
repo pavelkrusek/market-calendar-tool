@@ -209,8 +209,8 @@ def save(
 
 **Parameters**:
 
-`save_format` (`SaveFormat`, optional): The format to save files in. Defaults to `SaveFormat.PARQUET`.
-`output_dir` (`Optional[str]`, optional): The directory to save files to. Defaults to the current working directory.
+- `save_format` (`SaveFormat`, optional): The format to save files in. Defaults to `SaveFormat.PARQUET`.
+- `output_dir` (`Optional[str]`, optional): The directory to save files to. Defaults to the current working directory.
 
 **Behavior**:
 
@@ -222,7 +222,7 @@ def save(
 
 ```python
 # Save the scraped data with metadata in the file names
-result.save_with_metadata(output_dir="desired/output/path")
+result.save(output_dir="desired/output/path")
 ```
 
 ## Configuration
