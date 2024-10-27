@@ -228,6 +228,8 @@ def sample_scrape_result(
 ):
     return ScrapeResult(
         site=Site.FOREXFACTORY,
+        date_from="",
+        date_to="",
         base=sample_base_df,
         specs=sample_specs_df,
         history=sample_history_df,
@@ -258,7 +260,9 @@ def test_clean_data(sample_scrape_result):
 
 
 def test_clean_data_with_empty_dfs(sample_base_df):
-    scrape_result = ScrapeResult(site=Site.FOREXFACTORY, base=sample_base_df)
+    scrape_result = ScrapeResult(
+        site=Site.FOREXFACTORY, date_from="", date_to="", base=sample_base_df
+    )
 
     cleaned = clean_data(scrape_result)
 

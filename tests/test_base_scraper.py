@@ -1,6 +1,8 @@
+import time
 from unittest import mock
 from unittest.mock import Mock
 
+import pandas as pd
 import pytest
 import requests
 
@@ -40,6 +42,9 @@ def test_scrape_successful(scraper):
             assert isinstance(
                 result, ScrapeResult
             ), "Result should be a ScrapeResult instance"
+            assert result.site == Site.FOREXFACTORY
+            assert result.date_from == "2024-01-01"
+            assert result.date_to == "2024-01-31"
             assert result.base == "processed_data", "Base should be 'processed_data'"
             assert result.specs.empty, "Specs DataFrame should be empty"
             assert result.history.empty, "History DataFrame should be empty"
@@ -58,6 +63,27 @@ def test_scrape_successful(scraper):
             headers=scraper.session.headers,
             timeout=10,
         )
+
+
+def test_scraped_at_specific_timestamp(monkeypatch):
+    def mock_time():
+        return 1730026648.795961
+
+    monkeypatch.setattr(time, "time", mock_time)
+
+    site_instance = Site.CRYPTOCRAFT
+    base_df = pd.DataFrame({"data": [1, 2, 3]})
+
+    result = ScrapeResult(
+        site=site_instance,
+        base=base_df,
+        date_from="2024-01-01",
+        date_to="2024-01-07",
+    )
+
+    assert (
+        result.scraped_at == 1730026648.795961
+    ), "scraped_at should match the mocked timestamp"
 
 
 def test_scrape_json_decode_error(scraper):
