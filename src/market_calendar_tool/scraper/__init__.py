@@ -1,7 +1,6 @@
 from .base_scraper import BaseScraper, DataProcessingError, DataProcessor
-from .constants import Site, site_number_mapping
 from .extended_scraper import ExtendedScraper
-from .models import ScrapeResult
+from .models import ScrapeResult, Site, site_number_mapping
 
 __all__ = [
     "BaseScraper",

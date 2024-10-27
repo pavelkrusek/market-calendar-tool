@@ -1,10 +1,8 @@
 import requests
 from loguru import logger
 
-from market_calendar_tool.scraper.models import ScrapeResult
-
-from .constants import Site, site_number_mapping
 from .data_processor import DataProcessingError, DataProcessor
+from .models import ScrapeResult, Site, site_number_mapping
 
 
 class BaseScraper:
@@ -40,7 +38,12 @@ class BaseScraper:
                 data = response.json()
                 logger.info(f"Successfully scraped base data from {url}")
                 df = self._process_data(data)
-                return ScrapeResult(base=df)
+                return ScrapeResult(
+                    site=self.site,
+                    date_from=self.date_from,
+                    date_to=self.date_to,
+                    base=df,
+                )
             except requests.exceptions.JSONDecodeError as e:
                 logger.critical(f"Error decoding JSON from {url}: {str(e)}")
                 raise

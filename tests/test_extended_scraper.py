@@ -3,9 +3,8 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import pytest
 
-from market_calendar_tool.scraper.constants import Site
 from market_calendar_tool.scraper.extended_scraper import ExtendedScraper, ScrapeResult
-from market_calendar_tool.scraper.models import ScrapeOptions
+from market_calendar_tool.scraper.models import ScrapeOptions, Site
 
 
 @pytest.fixture
@@ -16,7 +15,9 @@ def mock_base_scraper():
         "market_calendar_tool.scraper.base_scraper.BaseScraper", autospec=True
     ) as MockBaseScraper:
         mock_scraper = MockBaseScraper.return_value
-        mock_scraper.scrape.return_value = ScrapeResult(base=df)
+        mock_scraper.scrape.return_value = ScrapeResult(
+            site=Site.FOREXFACTORY, date_from="", date_to="", base=df
+        )
 
         mock_scraper.site = Site.FOREXFACTORY
         mock_scraper.site_number = 1

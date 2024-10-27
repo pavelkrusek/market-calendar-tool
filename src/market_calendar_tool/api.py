@@ -3,10 +3,10 @@ from typing import Optional
 
 from loguru import logger
 
-from market_calendar_tool.scraper.models import ScrapeOptions
+from market_calendar_tool.scraper.models import ScrapeOptions, Site
 
 from .cleaning.cleaner import clean_data
-from .scraper import BaseScraper, ExtendedScraper, ScrapeResult, Site
+from .scraper import BaseScraper, ExtendedScraper, ScrapeResult
 
 
 def scrape_calendar(
