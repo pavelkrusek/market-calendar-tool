@@ -84,13 +84,12 @@ def clean_data(scrape_result: ScrapeResult) -> ScrapeResult:
     if not cleaned_history.empty:
         cleaned_news = cleaned_news[cleaned_news["id"].isin(valid_ids)]
 
-    return ScrapeResult(
-        scrape_result.site,
-        base=cleaned_base,
-        specs=cleaned_specs,
-        history=cleaned_history,
-        news=cleaned_news,
-    )
+    scrape_result.base = cleaned_base
+    scrape_result.specs = cleaned_specs
+    scrape_result.history = cleaned_history
+    scrape_result.news = cleaned_news
+
+    return scrape_result
 
 
 def clean_base(df: pd.DataFrame) -> pd.DataFrame:

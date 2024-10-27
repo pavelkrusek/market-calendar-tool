@@ -38,7 +38,12 @@ class BaseScraper:
                 data = response.json()
                 logger.info(f"Successfully scraped base data from {url}")
                 df = self._process_data(data)
-                return ScrapeResult(site=self.site, base=df)
+                return ScrapeResult(
+                    site=self.site,
+                    date_from=self.date_from,
+                    date_to=self.date_to,
+                    base=df,
+                )
             except requests.exceptions.JSONDecodeError as e:
                 logger.critical(f"Error decoding JSON from {url}: {str(e)}")
                 raise
