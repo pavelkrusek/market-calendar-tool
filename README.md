@@ -21,6 +21,8 @@ Please note that scraping data from websites must comply with the site's terms o
 - **DataFrame Output**: Returns raw data scraped from the website as *pandas* DataFrame(s) for further processing.
 - **Data Handling**: Always returns scraped data encapsulated in a `ScrapeResult` object for consistent data management.
 - **Data Cleaning and Validation**: Provides functionality to clean and validate scraped data for further processing, ensuring data quality and consistency.
+- **Data Saving with Metadata**: Automatically saves scraped data with file names that include the site name, date range, and scrape timestamp, ensuring clarity and uniqueness.
+- **Skip Empty DataFrames**: Automatically skips saving any empty DataFrames, preventing unnecessary files from being created.
 
 ## Installation
 
@@ -77,6 +79,9 @@ print(result.news)     # Related news articles
 custom_options = ScrapeOptions(max_parallel_tasks=10)
 raw_data = scrape_calendar(options=custom_options)
 cleaned_data = clean_calendar_data(raw_data)
+
+# Save the scraped data with metadata in the file names to a specific directory
+result.save(output_dir="output_data")
 ```
 
 ## Parameters
@@ -177,10 +182,47 @@ custom_options = ScrapeOptions(max_parallel_tasks=10)
 
 Contains extended data when `extended=True`.
 
+- `site` (`Site`): The website from which the data was scraped.
+- `date_from` (`str`): The start date of the scraped data range in "YYYY-MM-DD" format.
+- `date_to` (`str`): The end date of the scraped data range in "YYYY-MM-DD" format.
+- `scraped_at` (`float`): UNIX timestamp indicating when the scraping occurred.
 - `base` (`pd.DataFrame`): Basic event data.
 - `specs` (`pd.DataFrame`): Event specifications.
 - `history` (`pd.DataFrame`): Historical data.
 - `news` (`pd.DataFrame`): Related news articles.
+
+### `save`
+
+Overrides the `save` method to include site name, date range, and scrape timestamp in the file prefix. Also skips saving empty DataFrames.
+
+**Signature**:
+
+```python
+def save(
+    self,
+    save_format: SaveFormat = SaveFormat.PARQUET,
+    output_dir: Optional[str] = None
+) -> None:
+    ...
+```
+
+**Parameters**:
+
+`save_format` (`SaveFormat`, optional): The format to save files in. Defaults to `SaveFormat.PARQUET`.
+`output_dir` (`Optional[str]`, optional): The directory to save files to. Defaults to the current working directory.
+
+**Behavior**:
+
+- Constructs a `file_prefix` that includes the `site` name, `date_from`, `date_to`, and a formatted `scraped_at` timestamp.
+- Saves only non-empty DataFrame attributes (`base`, `specs`, `history`, `news`) with the constructed prefix.
+- Skips any empty DataFrames, avoiding the creation of unnecessary files.
+
+**Example**:
+
+```python
+# Save the scraped data with metadata in the file names
+result.save_with_metadata(output_dir="desired/output/path")
+```
 
 ## Configuration
 
