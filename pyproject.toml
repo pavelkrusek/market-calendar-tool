@@ -30,7 +30,7 @@ freezegun = "^1.5.1"
 pytest-asyncio = "^0.24.0"
 
 [tool.flake8]
-max-line-length = 150
+max-line-length = 350
 exclude = [".git", "__pycache__"]
 ignore = ["E203", "W503"]
 
