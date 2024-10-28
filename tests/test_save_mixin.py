@@ -37,7 +37,9 @@ def test_save_skips_empty_dataframes(
     mock_to_csv, mock_to_parquet, mock_makedirs, mock_exists, scrape_result, tmp_path
 ):
     mock_exists.return_value = True
-    scrape_result.save(save_format=SaveFormat.PARQUET, output_dir=str(tmp_path))
+    scrape_result.save_to_dataframes(
+        save_format=SaveFormat.PARQUET, output_dir=str(tmp_path)
+    )
 
     assert mock_to_parquet.call_count == 2
     mock_to_parquet.assert_any_call(
@@ -67,7 +69,9 @@ def test_save_correct_file_extensions(
 ):
     mock_exists.return_value = True
 
-    scrape_result.save(save_format=SaveFormat.CSV, output_dir=str(tmp_path))
+    scrape_result.save_to_dataframes(
+        save_format=SaveFormat.CSV, output_dir=str(tmp_path)
+    )
 
     assert mock_to_csv.call_count == 2
     mock_to_csv.assert_any_call(
@@ -97,7 +101,9 @@ def test_save_creates_output_dir_if_not_exists(
 ):
     mock_exists.return_value = False
 
-    scrape_result.save(save_format=SaveFormat.PARQUET, output_dir=str(tmp_path))
+    scrape_result.save_to_dataframes(
+        save_format=SaveFormat.PARQUET, output_dir=str(tmp_path)
+    )
 
     mock_makedirs.assert_called_once_with(str(tmp_path))
 

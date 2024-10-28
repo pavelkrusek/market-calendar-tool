@@ -1,3 +1,5 @@
+import glob
+import os
 import re
 import time
 from dataclasses import dataclass, field
@@ -6,6 +8,7 @@ from enum import Enum
 from typing import Optional
 
 import pandas as pd
+from loguru import logger
 
 from market_calendar_tool.mixins.save_mixin import SaveFormat, SaveMixin
 
@@ -50,7 +53,7 @@ class ScrapeResult(SaveMixin):
     history: pd.DataFrame = field(default_factory=pd.DataFrame)
     news: pd.DataFrame = field(default_factory=pd.DataFrame)
 
-    def save(
+    def save_to_dataframes(
         self,
         save_format: SaveFormat = SaveFormat.PARQUET,
         output_dir: Optional[str] = None,
@@ -61,6 +64,42 @@ class ScrapeResult(SaveMixin):
         file_prefix = (
             f"{self.site.prefix}__{self.date_from}_{self.date_to}_{formatted_time}"
         )
-        super().save(
+        super().save_to_dataframes(
             save_format=save_format, output_dir=output_dir, file_prefix=file_prefix
         )
+
+    def save(
+        self,
+        output_dir: Optional[str] = None,
+    ):
+        formatted_time = datetime.fromtimestamp(self.scraped_at).strftime(
+            "%Y%m%d%H%M%S"
+        )
+        file_name = f"scrape_result_{formatted_time}.pickle"
+        super().save(output_dir=output_dir, file_name=file_name)
+
+    @classmethod
+    def load(cls, file_path: Optional[str] = None) -> "ScrapeResult":
+        if file_path is None:
+            pattern = os.path.join(os.getcwd(), "scrape_result_*.pickle")
+            files = glob.glob(pattern)
+
+            if not files:
+                raise FileNotFoundError(
+                    "No 'scrape_result_*.pickle' files found in the current directory."
+                )
+
+            def extract_timestamp(f):
+                try:
+                    timestamp_str = (
+                        os.path.basename(f).split("_")[2].split(".pickle")[0]
+                    )
+                    return datetime.strptime(timestamp_str, "%Y%m%d%H%M%S")
+                except (IndexError, ValueError):
+                    return datetime.min
+
+            latest_file = max(files, key=extract_timestamp)
+            logger.info(f"No file_path provided. Using the latest file: {latest_file}")
+            file_path = latest_file
+
+        return cls.load_object(file_path)
